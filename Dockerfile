@@ -8,7 +8,7 @@ ENV MPLBACKEND=Agg \
     PYTHONUNBUFFERED=1
 
 COPY --chown=$MAMBA_USER:$MAMBA_USER requirements/env_climada.yml ./environment.yml
-RUN micromamba install -y -n base -f environment.yml && \
+RUN micromamba install -y -n base python=3.12 -f environment.yml && \
     micromamba clean -ya
 
 COPY pyproject.toml README.md LICENSE MANIFEST.in ./
