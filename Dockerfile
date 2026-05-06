@@ -7,7 +7,7 @@ ENV MPLBACKEND=Agg \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-COPY --chown=$MAMBA_USER:$MAMBA_USER environment.yml ./
+COPY --chown=$MAMBA_USER:$MAMBA_USER requirements/env_climada.yml ./environment.yml
 RUN micromamba install -y -n base -f environment.yml && \
     micromamba clean -ya
 
