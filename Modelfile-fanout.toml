@@ -4,6 +4,10 @@ image = "CLIMADA-project/climada_python:latest"
 run = "docker run --rm -v \"$PWD/run:/run\" ${IMAGE} ${ARGS} > run/hurricane_losses.output.json"
 args = ["{input:hurricane_scenario}"]
 
+[resources]
+memory = "4Gi"
+cpu = "2"
+
 [[inputs]]
 name = "hurricane_scenario"
 
