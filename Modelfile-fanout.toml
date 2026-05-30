@@ -1,5 +1,5 @@
-name = "climada_python"
-description = "Computes probabilistic hurricane loss distributions using CLIMADA. Models a TC event ensemble over an exposure grid and outputs an event loss table and exceedance probability curve suitable for cat bond pricing."
+name = "Hurricane Loss Model"
+description = "Simulates probabilistic hurricane losses with CLIMADA: models a tropical-cyclone event ensemble over an exposure grid and outputs a per-event ground-up loss table and exceedance-probability curve suitable for catastrophe-bond pricing. Feed it to Insured Loss Layer (OasisLMF)."
 image = "CLIMADA-project/climada_python:latest"
 run = "docker run --rm -v \"$PWD/run:/run\" ${IMAGE} ${ARGS} > run/hurricane_losses.output.json"
 args = ["{input:hurricane_scenario}"]
