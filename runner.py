@@ -198,7 +198,16 @@ def main():
     lat_c, lon_c = np.meshgrid(lats_c, lons_c, indexing="ij")
     centroids = Centroids(lat=lat_c.flatten(), lon=lon_c.flatten())
 
-    tc_haz = TropCyclone.from_tracks(tc_tracks, centroids=centroids)
+    # ignore_distance_to_coast=True skips centroids.get_dist_coast(), which in
+    # CLIMADA 5.x always downloads a ~300 MB NASA distance-to-coast raster
+    # (oceancolor.gsfc.nasa.gov, now 403 Forbidden). The distance is only used to
+    # drop centroids more than max_dist_inland_km (default 1000 km) inland; this
+    # model's centroids are a coastal regional grid entirely within that range, so
+    # the filter is a no-op and the results are unchanged — but the run no longer
+    # depends on an external NASA download.
+    tc_haz = TropCyclone.from_tracks(
+        tc_tracks, centroids=centroids, ignore_distance_to_coast=True
+    )
 
     # Assign per-track frequency so total frequency = ANNUAL_FREQ
     tc_haz.frequency = np.full(n_tracks, ANNUAL_FREQ / n_tracks)
