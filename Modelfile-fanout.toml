@@ -5,7 +5,7 @@ run = "docker run --rm -v \"$PWD/run:/run\" ${IMAGE} ${ARGS} > run/hurricane_los
 args = ["{input:hurricane_scenario}"]
 
 [resources]
-memory = "4Gi"
+memory = "5.5Gi"
 cpu = "2"
 
 [[inputs]]
