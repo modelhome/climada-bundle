@@ -1,0 +1,55 @@
+# Builds the image the way Model Home does (upstream CLIMADA at the pinned
+# commit, this bundle copied over it), under the same 4Gi memory ceiling the
+# build had to fit before, on amd64 like production. Then runs the Miami
+# scenario and checks the output against the Modelfile schema.
+name: Build and run
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+env:
+  # Keep in step with the Hurricane Loss Model's commit_sha in Model Home's seeds.
+  UPSTREAM_REF: bb9595944fcf673152ea53e61efbafeb0b1e4406
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          path: bundle
+
+      - name: Assemble the build context
+        run: |
+          mkdir -p ctx
+          git -C ctx init -q
+          git -C ctx fetch -q --depth 1 https://github.com/CLIMADA-project/climada_python "$UPSTREAM_REF"
+          git -C ctx checkout -q FETCH_HEAD
+          rm -rf ctx/.git
+          (cd bundle && tar cf - --exclude .git .) | (cd ctx && tar xf -)
+
+      - name: Set up BuildKit with a 4Gi memory limit
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: |
+            memory=4g
+            memory-swap=4g
+
+      - name: Build
+        uses: docker/build-push-action@v6
+        with:
+          context: ctx
+          platforms: linux/amd64
+          tags: climada-hlm:ci
+          load: true
+
+      - name: Run the Miami scenario
+        run: |
+          docker run --rm --memory 4g -v "$PWD/bundle/data:/data:ro" \
+            climada-hlm:ci /data/miami_scenario.json > output.json
+
+      - name: Check the output against the Modelfile schema
+        run: |
+          pip install --quiet jsonschema
+          python bundle/scripts/check_output.py bundle/Modelfile-fanout.toml output.json
