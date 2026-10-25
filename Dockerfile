@@ -19,7 +19,9 @@ COPY pyproject.toml README.md LICENSE MANIFEST.in ./
 COPY climada ./climada
 COPY runner.py ./
 
-RUN micromamba run -n base pip install --no-cache-dir --no-deps -e .
+# RUN micromamba run -n base pip install --no-cache-dir --no-deps -e .
+# ENTRYPOINT ["micromamba", "run", "-n", "base", "python", "runner.py"]
+RUN pip install --no-cache-dir --no-deps -e .
+ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "python", "runner.py"]
 
-ENTRYPOINT ["micromamba", "run", "-n", "base", "python", "runner.py"]
 CMD ["-"]
