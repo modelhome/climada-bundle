@@ -7,6 +7,14 @@ ENV MPLBACKEND=Agg \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
+# Put the env on PATH directly rather than through micromamba's activation:
+# on the production build nodes neither `micromamba run` nor the image's
+# activating SHELL worked (one could not start pip, the other left it off
+# PATH). PROJ_DATA and GDAL_DATA are what conda activation would have set.
+ENV PATH=/opt/conda/bin:$PATH \
+    PROJ_DATA=/opt/conda/share/proj \
+    GDAL_DATA=/opt/conda/share/gdal
+
 # Install from an explicit lock, not from upstream's env_climada.yml: solving
 # its ~45 loose conda-forge constraints peaked above 4Gi and was OOMKilled.
 # The lock is for linux-64 and was generated from env_climada.yml at the
@@ -19,9 +27,7 @@ COPY pyproject.toml README.md LICENSE MANIFEST.in ./
 COPY climada ./climada
 COPY runner.py ./
 
-# RUN micromamba run -n base pip install --no-cache-dir --no-deps -e .
-# ENTRYPOINT ["micromamba", "run", "-n", "base", "python", "runner.py"]
-RUN pip install --no-cache-dir --no-deps -e .
-ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "python", "runner.py"]
+RUN python -m pip install --no-cache-dir --no-deps -e .
+ENTRYPOINT ["python", "runner.py"]
 
 CMD ["-"]
